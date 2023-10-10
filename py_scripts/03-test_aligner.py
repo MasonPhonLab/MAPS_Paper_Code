@@ -12,9 +12,24 @@ import tensorflow as tf
 import python_speech_features as psf
 import scipy as sp
 
-MODEL_DIR = r'C:\Users\mckelley\alignerv2\timbuck_trained_models_repetitions'
+MODEL_DIR = r'D:\alignerv2\timbuck_trained_models_repetitions'
 FRAME_LENGTH = 0.025 # 25 ms expressed as seconds
 FRAME_INTERVAL = 0.01 # 10 ms expressed as seconds
+
+TIMIT_DIR = r'D:\TIMIT'
+BUCK_DIR = r'D:alignerv2\buck_out'
+BUCK_DIR_S04 = r'D:\alignerv2\buck_out_s04'
+
+# Flags for which evaluation to run
+ALIGN_DIR = r'D:/timbuck_data/timbuck10_train' # train, test, or val set
+MODEL_TYPE = 'CRISP' # crisp or sparse model
+
+# When True, will overwrite evaluation files already made, and won't skip anything
+#
+# When False, will not overwrite existing files and will skip evaluating those
+# files again
+OVERWRITE=False
+    
 
 CRISP_MODELS = [
     os.path.join(MODEL_DIR, 'real_seed_crisp_3blstm_128units_rd1_bs64_epoch19.tf'),
@@ -249,21 +264,31 @@ def make_batch(data):
         
     return np.stack(data, 0)
 
-ALIGN_DIR = r'F:/matt/timbuck10_train'
-TIMIT_DIR = r'C:\Users\mckelley\buckeye\TIMIT'
-BUCK_DIR = r'C:\Users\mckelley\alignerv2\buck_out'
-BUCK_DIR_S04 = r'C:\Users\mckelley\alignerv2\buck_out_s04'
-
 if __name__ == '__main__':
 
-    for i, mod_name in enumerate(SPARSE_MODELS):
+    if MODEL_TYPE == 'CRISP':
+        MODELS = CRISP_MODELS
+    elif MODEL_TYPE == 'SPARSE':
+        MODELS = SPARSE_MODELS
+    else:
+        raise ValueError('MODEL_TYPE variable can only take "CRISP" or "SPARSE" as its value.')
+        
+    if not OVERWRITE:
+        print('Collecting existing TextGrid names...')
+        already_present_textgrids = set(x for x in tqdm(os.listdir(ALIGN_DIR)) if x.endswith('TextGrid'))
+    else:
+        already_present_textgrids = set()
+
+        
+    for i, mod_name in enumerate(MODELS):
     
-        print()
-        print('.......MAKING TEXTGRIDS FOR MODEL {}.......'.format(i+1))
-        print()
         base_name = os.path.splitext(os.path.basename(mod_name))[0]
     
         MODEL = load_model(mod_name, compile=False)
+        
+        print()
+        print('.......MAKING TEXTGRIDS FOR {} MODEL {}.......'.format(MODEL_TYPE, i+1))
+        print()
         
         fname2wavname = dict()
         
@@ -286,11 +311,15 @@ if __name__ == '__main__':
                 x = x.replace('.wav', '.npy')
                 fname2wavname[x] = pathname
                 
-        corr = 0
-        all = 0
-        accs = []
-        
         for fname in tqdm([x for x in os.listdir(ALIGN_DIR) if not 'labs' in x and not 'multi' in x and x.endswith('.npy')]):
+        
+            tgname = os.path.basename(fname)
+            tgname = os.path.splitext(tgname)[0]
+            tgname_interp = tgname + base_name + '_interp.TextGrid'
+            tgname_noint = tgname + base_name + '_noint.TextGrid'
+            
+            if (tgname_interp in already_present_textgrids) and (tgname_noint in already_present_textgrids) and not OVERWRITE: continue
+            elif already_present_textgrids: already_present_textgrids = set()
             
             wavname = fname2wavname[fname]
         
@@ -309,11 +338,8 @@ if __name__ == '__main__':
             x = np.hstack((mfcc, delta, deltadelta))
             x = np.expand_dims(x, axis=0)
             yhat = MODEL.predict(x, verbose=0)
-            # ADDED SIGMOID LAYER TO MODEL ALREADY; DON'T NEED THIS ONE!!!!
-            yhat = sp.special.expit(yhat) # sigmoid function
             
             seq, M = force_align(np.load(labname), yhat)
-            np.savetxt('recentM.txt', M, delimiter='\t')
             
             tgname = os.path.basename(fname)
             tgname = os.path.splitext(tgname)[0]
@@ -324,4 +350,4 @@ if __name__ == '__main__':
 
             make_textgrid(seq, tgpath_interp, duration, interpolate=True, symm=False, probs=M.T)
             make_textgrid(seq, tgpath_noint, duration, interpolate=False, symm=False, probs=M.T)
-        
+            

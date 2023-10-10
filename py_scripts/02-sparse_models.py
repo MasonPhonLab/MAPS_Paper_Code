@@ -27,6 +27,8 @@ from tensorflow.keras.models import load_model
 from sklearn.metrics import f1_score, balanced_accuracy_score
 import tensorflow_addons as tfa
 
+from wbce import weighted_binary_crossentropy, POS_WEIGHT
+
 my_rng = random.Random(220720)
 MAX_SEED = 2**32 - 1
 SEEDS = [my_rng.randint(0, MAX_SEED) for x in range(10)]
@@ -52,8 +54,6 @@ MODELS = {
 9 : os.path.join(MODEL_DIR, 'real_seed_crisp_3blstm_128units_rd9_bs64_epoch29.tf'),
 10 : os.path.join(MODEL_DIR, 'real_seed_crisp_3blstm_128units_rd10_bs64_epoch28.tf'),
 }
-
-POS_WEIGHT = 33
 
 def get_sequence(yname):
 
@@ -107,30 +107,6 @@ class SpeechSequence(tf.keras.utils.Sequence):
         Y_batch = make_batch(Ys)
         
         return X_batch, Y_batch
-    
-def weighted_binary_crossentropy(target, output):
-    """
-    Weighted binary crossentropy between an output tensor 
-    and a target tensor. POS_WEIGHT is used as a multiplier 
-    for the positive targets.
-
-    Combination of the following functions:
-    * keras.losses.binary_crossentropy
-    * keras.backend.tensorflow_backend.binary_crossentropy
-    * tf.nn.weighted_cross_entropy_with_logits
-    
-    This function is slightly tweaked from tobigue on StackOverflow.
-    WayBack archived version available here: https://web.archive.org/web/20230927190311/https://stackoverflow.com/questions/42158866/neural-network-for-multi-label-classification-with-large-number-of-classes-outpu
-    """
-    # transform back to logits
-    _epsilon = tfb.epsilon()
-    output = tf.clip_by_value(output, _epsilon, 1 - _epsilon)
-    output = tf.math.log(output / (1 - output))
-    # compute weighted loss
-    loss = tf.nn.weighted_cross_entropy_with_logits(labels=target,
-                                                    logits=output,
-                                                    pos_weight=POS_WEIGHT)
-    return tf.reduce_mean(loss, axis=-1)
     
 def sk_f1(y_true, y_pred):
     return f1_score(y_true, y_pred, average='weighted')
