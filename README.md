@@ -43,6 +43,8 @@ TextGrids are created using the `03-test_aligner.py` script. As-written, the scr
 
 The `OVERWRITE` flag can be used to decide whether to resume interrupted iterations through the evaluation loop. When set to `False`, the system will only write TextGrid files that don't already exist and will skip the generation for files that already exist. When set to `True`, no files will be skipped.
 
+This script calls out to a `Julia` script to perform the actual alignment process. This script is located at `jl_scripts/dtw_align.jl`.
+
 # 4. Calculating boundary errors
 
 The errors for the boundaries are calculated using the `04-boundary_error.py` script. It will require there to be folders with the names "train", "val", and "test" within the same directory. Similar to the `03-test_aligner.py` sciprt, this script will need run multiple times. However, it combines the evaluation of the sparse and crisp models, so it only needs to be run 3 times, changing the flags for the train set, val set, and test set as needed. It also has an `OVERWRITE` flag that can be set as in `03-test_aligner.py`.
