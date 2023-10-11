@@ -35,7 +35,7 @@ function dtw_align(seq, probs, rev=true)
 end
 
 function dtw(S, T, d)
-nrow = length(S)
+	nrow = length(S)
     ncol = length(T)
     
     M = zeros(nrow+1, ncol+1) .+ Inf64
