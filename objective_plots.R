@@ -1,11 +1,9 @@
 library(ggplot2)
 
-setwd("C:/Users/mckelley/alignerv2")
-
 ### Crisp network evaluations
 
-frame_names = list.files(path=".", pattern="^real(.)*.txt")
-frames = lapply(frame_names, function(x) read.table(x, header=TRUE))
+frame_names = list.files(path="performance_metrics", pattern="^real(.)*.txt")
+frames = lapply(frame_names, function(x) read.table(file.path("performance_metrics", x), header=TRUE))
 t_losses = lapply(frames, function(x) x$train_loss)
 t_losses = Reduce(cbind, t_losses)
 t_l_mu = rowMeans(t_losses)
@@ -85,8 +83,8 @@ ggplot(accs, aes(epoch, acc, ymin=selow, ymax=sehigh, group=type, color=type)) +
 
 ### Tagger network evaluations
 
-frame_names = list.files(path=".", pattern="full(.)*.txt")
-frames = lapply(frame_names, function(x) read.table(x, header=TRUE))
+frame_names = list.files(path="performance_metrics", pattern="full(.)*.txt")
+frames = lapply(frame_names, function(x) read.table(file.path("performance_metrics", x), header=TRUE))
 t_losses = lapply(frames, function(x) x$train_loss)
 t_losses = Reduce(cbind, t_losses)
 t_l_mu = rowMeans(t_losses)

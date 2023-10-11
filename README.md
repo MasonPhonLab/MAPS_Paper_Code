@@ -45,11 +45,15 @@ The `OVERWRITE` flag can be used to decide whether to resume interrupted iterati
 
 This script calls out to a `Julia` script to perform the actual alignment process. This script is located at `jl_scripts/dtw_align.jl`.
 
-# 4. Calculating boundary errors
+# 4. Test set evaluation
 
-The errors for the boundaries are calculated using the `04-boundary_error.py` script. It will require there to be folders with the names "train", "val", and "test" within the same directory. Similar to the `03-test_aligner.py` sciprt, this script will need run multiple times. However, it combines the evaluation of the sparse and crisp models, so it only needs to be run 3 times, changing the flags for the train set, val set, and test set as needed. It also has an `OVERWRITE` flag that can be set as in `03-test_aligner.py`.
+To calculate network performance metrics for on the test set, run the `04-eval_test.py` script. Two files will be written, `crisp_test_res.txt` and `sparse_test_res.txt`. These files will be analyzed in top-level `R` scripts.
 
-# 5. Metric calculations and plot generation
+# 5. Calculating boundary errors
+
+The errors for the boundaries are calculated using the `05-boundary_error.py` script. It will require there to be folders with the names "train", "val", and "test" within the same directory. Similar to the `03-test_aligner.py` sciprt, this script will need run multiple times. However, it combines the evaluation of the sparse and crisp models, so it only needs to be run 3 times, changing the flags for the train set, val set, and test set as needed. It also has an `OVERWRITE` flag that can be set as in `03-test_aligner.py`.
+
+# 6. Metric calculations and plot generation
 
 There are 4 `R` scripts that need to be run. Two are at the top-level. The first is `average_metrics.R`, which will calculate averages of the evaluation metrics and associated standard errors. The second is `objective_plots.R`, which will generate the plots of training performance over each epoch.
 

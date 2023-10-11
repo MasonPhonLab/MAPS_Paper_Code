@@ -1,8 +1,8 @@
 ##### CRISP
 ### AVG. NUM. EPOCHS
-setwd("C:/Users/mckelley/alignerv2")
-crispdats = lapply(list.files(pattern="^real"),
-                   function(x) read.table(x, header=TRUE))
+dat_path = "performance_metrics"
+crispdats = lapply(list.files(path=dat_path, pattern="^real"),
+                   function(x) read.table(file.path(dat_path, x), header=TRUE))
 best_crisp_epochs = sapply(crispdats,
                            function(x) {
                              mx = max(x$val_acc)
@@ -32,7 +32,7 @@ best_crisp_val_acc = sapply(1:10, function(i)
 mean(best_crisp_val_acc)
 1.96 * sd(best_crisp_val_acc) / sqrt(10-1)
 
-crisp_test_dat = read.table("crisp_test_res.txt", header=TRUE)
+crisp_test_dat = read.table("performance_metrics/crisp_test_res.txt", header=TRUE)
 mean(crisp_test_dat$loss)
 1.96 * sd(crisp_test_dat$loss) / sqrt(10-1)
 
@@ -42,8 +42,8 @@ mean(crisp_test_dat$accuracy)
 ###### SPARSE
 ### AVG. NUM. EPOCHS
 
-sparsedats = lapply(list.files(pattern="full"),
-                    function(x) read.table(x, header=TRUE))
+sparsedats = lapply(list.files(path="performance_metrics", pattern="full"),
+                    function(x) read.table(file.path("performance_metrics", x), header=TRUE))
 best_sparse_epochs = sapply(sparsedats,
                             function (x) {
                               mx = max(x$val_balacc)
@@ -53,7 +53,8 @@ print(best_sparse_epochs)
 mean(best_sparse_epochs)
 sd(best_sparse_epochs) / sqrt(10-1)
 
-frames = lapply(list.files(pattern="^full"), function(x) read.table(x, header=TRUE))
+frames = lapply(list.files(path="performance_metrics", pattern="^full"),
+                function(x) read.table(file.path("performance_metrics", x), header=TRUE))
 
 ### Train metrics
 all_train_loss = lapply(frames, function(x) x$train_loss)
@@ -109,7 +110,7 @@ mean(best_val_balacc)
 
 ### Test metrics
 
-sparse_test = read.table("sparse_test_res.txt", header=TRUE, sep="\t")
+sparse_test = read.table("performance_metrics/sparse_test_res.txt", header=TRUE, sep="\t")
 
 mean(sparse_test$loss)
 1.96 * sd(sparse_test$loss) / sqrt(10-1)
@@ -122,3 +123,4 @@ mean(sparse_test$spec)
 
 mean(sparse_test$balacc)
 1.96 * sd(sparse_test$balacc) / sqrt(nrow(sparse_test) - 1)
+
