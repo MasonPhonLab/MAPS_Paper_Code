@@ -222,48 +222,6 @@ def prediction2tg(fname, maxTime):
     
 Main.include("../jl_scripts/dtw_align.jl")
 
-class SpeechSequence(tf.keras.utils.Sequence):
-
-    def __init__(self, x_set, y_set, batch_size):
-    
-        self.x = x_set
-        self.y = y_set
-        self.batch_size = batch_size
-        
-    def __len__(self):
-    
-        return int(np.ceil(len(self.x) / float(self.batch_size)))
-        
-    def __getitem__(self, idx):
-    
-        start = idx * self.batch_size
-        last = min(start + self.batch_size, len(self.x))
-        Xs = [np.load(fname) for fname in self.x[start:last]]
-        Ys = [np.load(fname) for fname in self.y[start:last]]
-        
-        X_batch = make_batch(Xs)
-        Y_batch = make_batch(Ys)
-        
-        return X_batch, Y_batch
-        
-def make_batch(data):
-
-    pad_to_size = max([d.shape[0] for d in data])
-    
-    for i, tensor in enumerate(data):
-    
-        to_pad = pad_to_size - tensor.shape[0]
-        
-        if to_pad > 0:
-        
-            width = ((0, to_pad), (0, 0))
-            tensor = np.pad(tensor, pad_width=width, mode='constant', constant_values=0)
-            
-        data[i] = tensor
-        
-        
-    return np.stack(data, 0)
-
 if __name__ == '__main__':
 
     if MODEL_TYPE == 'CRISP':
