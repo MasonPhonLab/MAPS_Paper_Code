@@ -205,21 +205,7 @@ def interpolated_part(endCur, phone_n, probs, symm=True):
         
     return 0
     
-    
-def prediction2tg(fname, maxTime):
-    
-    d = np.load(fname)
-    phone_sequence = get_phone_sequence(d)
-    
-    cumudur = 0
-    
-    for p in phone_sequence:
-    
-        cumudur += FRAME_LENGTH + FRAME_INTERVAL * (p.duration - 1 )
-    
-    tgname = os.path.splitext(fname)[0] + '.TextGrid'
-    make_textgrid(phone_sequence, tgname, maxTime)
-    
+# Import Julia alignment code
 Main.include("../jl_scripts/dtw_align.jl")
 
 if __name__ == '__main__':
