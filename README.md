@@ -2,6 +2,8 @@ These are the scripts associated with data extraction, model training, and model
 
 The TIMIT and Buckeye corpora will need to be acquired before being able to use the scripts in this repository. Additionally, if using TIMIT data directly from the Language Data Consortium download, the audio files will need to be converted from NIST to RIFF. [This StackOverflow page](https://stackoverflow.com/questions/47370167/change-huge-amount-of-data-from-nist-to-riff-wav-file) has some useful instruction on how to do so.
 
+The TextGrids we created during evaluation may be downloaded from [the George Mason University Dataverse](https://doi.org/10.13021/orc2020/PDSAP7), and these files are necessary to reproduce the evaluation results.
+
 # 0. Data preparation
 
 The data preparation invovles both Praat and Python scripts. The Python libraries being called are fairly stable and hopefully will not require version specificity.
