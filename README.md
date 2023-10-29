@@ -1,6 +1,10 @@
+[![DOI](https://zenodo.org/badge/697435898.svg)](https://zenodo.org/doi/10.5281/zenodo.10035629)
+
 These are the scripts associated with data extraction, model training, and model evaluation for the Mason-Alberta Phonetic Segmenter (MAPS) paper. Little has been done to change the scripts from when they were run since, as every seassoned programmer knows, even small modifications can cause unexpected deviations from the results in the paper of record. The directory structure of the scripts may need to be manipulated to work with where they intend to extract data to, as they have been organized here by script type, rather than where they were run.
 
 The TIMIT and Buckeye corpora will need to be acquired before being able to use the scripts in this repository. Additionally, if using TIMIT data directly from the Language Data Consortium download, the audio files will need to be converted from NIST to RIFF. [This StackOverflow page](https://stackoverflow.com/questions/47370167/change-huge-amount-of-data-from-nist-to-riff-wav-file) has some useful instruction on how to do so.
+
+The TextGrids we created during evaluation may be downloaded from [the George Mason University Dataverse](https://doi.org/10.13021/orc2020/PDSAP7), and these files are necessary to reproduce the evaluation results.
 
 # 0. Data preparation
 
