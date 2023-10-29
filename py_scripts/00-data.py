@@ -25,8 +25,6 @@ ERRLOG = 'errlog.txt'
 
 FRAME_LENGTH = 0.025
 FRAME_INTERVAL = 0.01
-BATCH_NFRAMES = 500
-BATCH_FRAME_OVERLAP = 480
 
 phones = 'h#	q	eh	dx	iy	r	ey	ix	tcl	sh	ow	z	s	hh	aw	m	t	er	l	w	aa	hv	ae	dcl	y	axr	d	kcl	k	ux	ng	gcl	g	ao	epi	ih	p	ay	v	n	f	jh	ax	en	oy	dh	pcl	ah	bcl	el	zh	uw	pau	b	uh	th	ax-h	em	ch	nx	eng'.split()
 phn2num = {p: i for i, p in enumerate(phones)}
@@ -420,6 +418,7 @@ def timit2tg():
 
 if __name__ == '__main__':
             
+    make_data(traindir, r'F:\matt\timbuck10_train')
     make_data(testdir, r'F:\matt\timbuck10_test')
     buckeye_data(buckeye_dir, r'C:\Users\mckelley\alignerv2\data\buck_phrases_mfcc')
     # 27: old female speaker
@@ -433,3 +432,4 @@ if __name__ == '__main__':
     # re-training for Buckeye would be painful; plus, this gives us a holdout speaker in the validation set
     buckeye_data('C:/Users/mckelley/alignerv2/buck_out_s04', r'C:\Users\mckelley\alignerv2\data\timbuck10_val')
     timit2tg()
+    
