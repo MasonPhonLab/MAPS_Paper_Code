@@ -2,7 +2,7 @@
 ## total files in val set:    3890
 ## total files in test set:   6421
 
-wdname = "C:/Users/Matt/APhL_Aligner_Paper_Code/py_scripts/boundary_eval_res"
+wdname = "C:/Users/Matt/MAPS_Paper_Code/py_scripts/boundary_eval_res"
 setwd(wdname)
 all_sparse_filenames = list.files("val", pattern="full_real.*all_res")
 all_crisp_filenames = list.files("val", pattern="^real_seed.*all_res")
