@@ -14,6 +14,15 @@ The data preparation invovles both Praat and Python scripts. The Python librarie
 
 It is important to note that s04 in the Buckeye data was held out for validation data through a different manner as the test set, so some attention should be paid to either get the file structure to work for the `00-data.py` script, or the speaker's phrases can be manually added to a validation folder outside of the Python script.
 
+If using the provided results files instead of creating them yourself:
+
+1. Download the "results_folders.zip" and "mfa_results_folders.zip" files from the release.
+
+2. Unzip these folders.
+    1. The "train", "val", and "test" folders in "results_folders.zip" need to be placed into "py_scripts/boundary_eval_res".
+	
+	2. The "train", "val", and "test" folders in "mfa_results_folders.zip" need to be placed into "py_scripts/mfa_boundary_eval_res".
+
 ## 0.1. Extracting phrases from the Buckeye corpus
 
 1. Run the `praat_scripts/buckeye_textgrids.praat` script, changing directories as needed, to convert the Buckeye transcription files to TextGrid files.
@@ -59,9 +68,23 @@ To calculate network performance metrics for on the test set, run the `04-eval_t
 
 The errors for the boundaries are calculated using the `05-boundary_error.py` script. It will require there to be folders with the names "train", "val", and "test" within the same directory. Similar to the `03-test_aligner.py` sciprt, this script will need run multiple times. However, it combines the evaluation of the sparse and crisp models, so it only needs to be run 3 times, changing the flags for the train set, val set, and test set as needed. It also has an `OVERWRITE` flag that can be set as in `03-test_aligner.py`.
 
+# 6. MFA training directory file cleanup
+
+If the MFA trains speaker-dependent models, the aligned files can end up in folders separated by speaker. The script `06-collapse_mfa_train_files.py` will move these all into one folder.
+
+# 7. Calculating MFA boundary errors
+
+The errors for the MFA care calculated using the `07-mfa_boundary_error.py` script. It works similarly to `05-boundary-error.py` and will need to be run multiple times.
+
+# 8. Sparse label analysis
+
+To calcualte the distance for the sparse labels, the `08-sparse_label_analysis.py` needs to be run. It will produce a table.
+
 # 6. Metric calculations and plot generation
 
-There are 4 `R` scripts that need to be run. Two are at the top-level. The first is `average_metrics.R`, which will calculate averages of the evaluation metrics and associated standard errors. The second is `objective_plots.R`, which will generate the plots of training performance over each epoch.
+There are 5 `R` scripts that need to be run. Two are at the top-level. The first is `average_metrics.R`, which will calculate averages of the evaluation metrics and associated standard errors. The second is `objective_plots.R`, which will generate the plots of training performance over each epoch.
+
+The next R script is `make_dendrograms.R`, which is in the `py_scripts` folder. It will take the tables that `08-sparse_label_analysis.py` produces and then create dendrograms.
 
 The other two `R` scripts are nested within the `py_scripts` folder. The `py_scripts/boundary_eval_res/boundary_eval.R` script will create the tables associated with the boundary error thresholds and the CDF plots. There are two associated `Julia` scripts as well that will be called by the `R` script to generate the plots used in the paper, but the script will also generate the plots with base R graphics. This script will also read in MFA results as needed.
 

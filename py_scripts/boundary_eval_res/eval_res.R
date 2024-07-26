@@ -20,10 +20,30 @@ crisp_row = function(set="train", style="interp") {
   md_sterr = sd(mdae) / sqrt(length(mdae)) * 1000
   mn_sterr = sd(mnae) / sqrt(length(mnae)) * 1000
   
-  md_str = paste("$", round(mean(mdae) * 1000, 2), " \\pm ", round(1.96 * md_sterr, 2), " \\, \\text{ms}$", sep="")
-  mn_str = paste("$", round(mean(mnae) * 1000, 2), " \\pm ", round(1.96 * mn_sterr, 2), " \\, \\text{ms}$", sep="")
+  md_str = paste("$", round(mean(mdae) * 1000, 2), " \\pm ", round(1.96 * md_sterr, 2), "$", sep="")
+  mn_str = paste("$", round(mean(mnae) * 1000, 2), " \\pm ", round(1.96 * mn_sterr, 2), "$", sep="")
   
-  cat(paste("Crisp", ifelse(style == "interp", "Yes", "No"), set, mn_str, md_str, sep=" & "), "\\\\")
+  cat(paste("Crisp", ifelse(style == "interp", "Yes", "No"), set, mn_str, md_str, sep=" & "), "\\\\\n")
+}
+
+crisp_by_corpus = function(set="train", style="interp", corpus="timit") {
+  all_df = lapply(all_crisp_filenames, function(x) read.csv(file.path(wdname, set, x)))
+  for(i in 1:length(all_df)) {
+    all_df[[i]]$round=i
+  }
+  
+  all_df = Reduce(rbind, all_df)
+  all_df = all_df[all_df$corpus == corpus,]
+  mdae = tapply(all_df[,style], all_df$round, function(x) median(abs(x)))
+  mnae = tapply(all_df[,style], all_df$round, function(x) mean(abs(x)))
+  
+  md_sterr = sd(mdae) / sqrt(length(mdae)) * 1000
+  mn_sterr = sd(mnae) / sqrt(length(mnae)) * 1000
+  
+  md_str = paste("$", round(mean(mdae) * 1000, 2), " \\pm ", round(1.96 * md_sterr, 2), "$", sep="")
+  mn_str = paste("$", round(mean(mnae) * 1000, 2), " \\pm ", round(1.96 * mn_sterr, 2), "$", sep="")
+  
+  cat(paste("Crisp", ifelse(style == "interp", "Yes", "No"), set, corpus, mn_str, md_str, sep=" & "), "\\\\\n")
 }
 
 sparse_row = function(set="train", style="interp") {
@@ -39,10 +59,10 @@ sparse_row = function(set="train", style="interp") {
   md_sterr = sd(mdae) / sqrt(length(mdae)) * 1000
   mn_sterr = sd(mnae) / sqrt(length(mnae)) * 1000
   
-  md_str = paste("$", round(mean(mdae) * 1000, 2), " \\pm ", round(1.96 * md_sterr, 2), " \\, \\text{ms}$", sep="")
-  mn_str = paste("$", round(mean(mnae) * 1000, 2), " \\pm ", round(1.96 * mn_sterr, 2), " \\, \\text{ms}$", sep="")
+  md_str = paste("$", round(mean(mdae) * 1000, 2), " \\pm ", round(1.96 * md_sterr, 2), "$", sep="")
+  mn_str = paste("$", round(mean(mnae) * 1000, 2), " \\pm ", round(1.96 * mn_sterr, 2), "$", sep="")
   
-  cat(paste("Sparse", ifelse(style == "interp", "Yes", "No"), set, mn_str, md_str, sep=" & "), "\\\\")
+  cat(paste("Sparse", ifelse(style == "interp", "Yes", "No"), set, mn_str, md_str, sep=" & "), "\\\\\n")
 }
 
 crisp_row(set="train", style="interp")
@@ -59,6 +79,9 @@ sparse_row(set="train", style="nointerp")
 sparse_row(set="val", style="nointerp")
 sparse_row(set="test", style="nointerp")
 
+crisp_by_corpus(set="test", style="interp", corpus="timit")
+crisp_by_corpus(set="test", style="interp", corpus="buckeye")
+
 crisp_quantiles = function(set="train", style="interp") {
   all_df = lapply(all_crisp_filenames, function(x) read.csv(file.path(wdname, set, x)))
   for(i in 1:length(all_df)) {
@@ -73,7 +96,7 @@ crisp_quantiles = function(set="train", style="interp") {
   lt100 = tapply(all_df[,style], all_df$round, function(x) sum(abs(x) < 0.1) / length(x)) |> mean() * 100
   
   s = cat("Crisp", ifelse(style=="interp", "Yes", "No"), set, round(lt10, 2), round(lt20, 2), round(lt25, 2), round(lt50, 2), round(lt100, 2), sep=" & ")
-  cat(s, "\\\\")
+  cat(s, "\\\\\n")
 }
 
 crisp_quantiles_w_se = function(set="train", style="interp") {
@@ -93,7 +116,7 @@ crisp_quantiles_w_se = function(set="train", style="interp") {
     s_total = paste(s_total, s_part, sep=" & ")
   }
   
-  cat(s_total, "\\\\")
+  cat(s_total, "\\\\\n")
 }
 
 sparse_quantiles = function(set="train", style="interp") {
@@ -110,7 +133,7 @@ sparse_quantiles = function(set="train", style="interp") {
   lt100 = round(sum(abs(all_df[,style]) < 0.1) / nrow(all_df) * 100, 2)
   
   s = cat("Sparse", ifelse(style=="interp", "Yes", "No"), set, lt10, lt20, lt25, lt50, lt100, sep=" & ")
-  cat(s, "\\\\")
+  cat(s, "\\\\\n")
 }
 
 sparse_quantiles_w_se = function(set="train", style="interp") {
@@ -130,7 +153,7 @@ sparse_quantiles_w_se = function(set="train", style="interp") {
     s_total = paste(s_total, s_part, sep=" & ")
   }
   
-  cat(s_total, "\\\\")
+  cat(s_total, "\\\\\n")
 }
 
 # Make table without se for main body text
@@ -194,7 +217,7 @@ nointerp_cdf = rowMeans(data.frame(all_nointerp_boundaries))
 lines(boundaries, nointerp_cdf, col=color2, lwd=2)
 
 mfa_test_errs_all = read.csv("../mfa_boundary_eval_res/test/mfa_all_res.csv")
-mfa_cdf = ecdf(abs(mfa_test_errs_all$errs) * 1000)(boundaries)
+mfa_cdf = ecdf(abs(mfa_test_errs_all$err) * 1000)(boundaries)
 lines(boundaries, mfa_cdf, col=color3, lw=2)
 
 legend("bottomright", legend=c("Crisp", "Sparse", "MFA"), col=c(color1, color2, color3), lty=1, lwd=2)
@@ -233,7 +256,7 @@ sparse_all_nointerp_boundaries = lapply(sparse_nointerp_cdfs, function(x) x(boun
 sparse_nointerp_cdf = rowMeans(data.frame(sparse_all_nointerp_boundaries))
 lines(boundaries, sparse_nointerp_cdf, col=color2, lwd=2)
 
-mfa_cdf = ecdf(abs(mfa_test_errs_all$errs) * 1000)(boundaries)
+mfa_cdf = ecdf(abs(mfa_test_errs_all$err) * 1000)(boundaries)
 lines(boundaries, mfa_cdf, col=color3, lw=2)
 
 legend("bottomright", legend=c("Crisp", "Sparse", "MFA"), col=c(color1, color2, color3), lty=1, lwd=2)
@@ -241,3 +264,88 @@ legend("bottomright", legend=c("Crisp", "Sparse", "MFA"), col=c(color1, color2, 
 sparse_errs_df = data.frame(boundary=boundaries, interp=sparse_interp_cdf, nointerp=sparse_nointerp_cdf, mfa=mfa_cdf)
 write.csv(sparse_errs_df, file="sparse_test_errs.csv")
 system("julia sparse_plot.jl")
+
+bisegment_analysis = function(fnames, set="test", style="interp", model="crisp") {
+
+  make_crisp_confusion_plot_data = function(fnames, set="test", style="interp") {
+    all_df = lapply(fnames, function(x) read.csv(file.path(wdname, set, x)))
+    for(i in 1:length(all_df)) {
+      all_df[[i]]$round=i
+    }
+    
+    all_df = Reduce(rbind, all_df)
+    return(all_df)
+  }
+  
+  all_df = make_crisp_confusion_plot_data(fnames=fnames, set="test", style="interp")
+  all_df$idx = rep(1:sum(all_df$round == 1), times=10)
+  all_df$interp = all_df$interp * 1000
+  all_df$nointerp = all_df$nointerp * 1000
+  all_df = all_df[all_df$next_segment != "#",]
+  all_df$targ = all_df[,style]
+  
+  category_df = read.csv("segment_categories.csv")
+  
+  new_df = merge(all_df, category_df, by.x="segment", by.y="segment")
+  colnames(new_df)[colnames(new_df) == "category"] = "segment_category"
+  new_df = merge(new_df, category_df, by.x="next_segment", by.y="segment")
+  colnames(new_df)[colnames(new_df) == "category"] = "next_segment_category"
+  
+  agg = aggregate(targ ~ segment_category + next_segment_category + round,
+            data=new_df, FUN=function(x) median(abs(x)))
+  colnames(agg)[colnames(agg) == "targ"] = "err"
+  
+  agg_mn = aggregate(err ~ segment_category + next_segment_category,
+                     data=agg, FUN=mean)
+  
+  outname = paste(set, style, model, "by_category_means.csv", sep="_")
+  write.csv(agg_mn, outname, row.names=FALSE, quote=FALSE)
+  system(paste("julia make_heatmap.jl", outname, sep=" "))
+  
+  agg_se = aggregate(err ~ segment_category + next_segment_category,
+                     data=agg, FUN=function(x) sd(x) / sqrt(length(x)))
+  
+  make_category_table = function(x_mn, x_se) {
+    nxt_sgs = sort(unique(x_mn$next_segment_category))
+    to_fill = matrix("none", nrow=7, ncol=7)
+    cap_sgs = paste(toupper(substr(nxt_sgs, 1, 1)),
+                     substring(nxt_sgs, 2),
+                     collapse=NULL, sep="")
+    d = data.frame(segment=nxt_sgs)
+    d = cbind(d, to_fill)
+    colnames(d)[2:8] = nxt_sgs
+    
+    for(s1 in nxt_sgs) {
+      for(s2 in nxt_sgs) {
+        mn = x_mn$err[x_mn$segment_category == s1 & x_mn$next_segment_category == s2]
+        mn = as.character(round(mn, digits=2))
+        se = x_se$err[x_se$segment_category == s1 & x_se$next_segment_category == s2]
+        se = as.character(round(se * 1.96, digits=2))
+        i1 = which(nxt_sgs == s1)
+        i2 = which(nxt_sgs == s2) + 1
+        d[i1, i2] = paste(mn, "\\pm", se, sep=" ")
+        d[i1, i2] = paste("$", d[i1, i2], "$", sep="")
+        if(s1 == "silence" && s2 == "silence") d[i1, i2] = "---"
+      }
+    }
+    
+    colnames(d)[1] = "Segment"
+    d$Segment = cap_sgs
+    colnames(d)[2:8] = cap_sgs
+    return(d)
+  }
+  tb = make_category_table(agg_mn, agg_se)
+  cat(paste(colnames(tb), collapse=" & ")); cat(" \\\\\n")
+  for(i in 1:nrow(tb)) {
+    r = tb[i,]
+    s = paste(r, collapse=" & ", sep="")
+    s = paste(s, " \\\\\n", sep="")
+    cat(s)
+  }
+}
+
+bisegment_analysis(all_crisp_filenames, set="test", style="interp", model="crisp")
+bisegment_analysis(all_crisp_filenames, set="test", style="nointerp", model="crisp")
+
+bisegment_analysis(all_sparse_filenames, set="test", style="interp", model="sparse")
+bisegment_analysis(all_sparse_filenames, set="test", style="nointerp", model="sparse")

@@ -10,11 +10,11 @@ import sys
 
 # Change "_train" to "_test" or "_val" to evaluate the test
 # or val performance instead of train
-ALIGN_DIR = 'D:/timbuck_data/timbuck10_train'
+ALIGN_DIR = 'D:/timbuck_data/timbuck10_val'
 GOLD_DIR = 'D:/timbuck_data/timbuck_textgrids'
 MODEL_DIR = 'timbuck_trained_models_repetitions'
 
-RES_DIR = 'boundary_eval_res/train'
+RES_DIR = 'mfa_boundary_eval_res/val'
 
 # counts if any labels were skipped due to label
 # incommensurability. Ideally, this should be 0,
@@ -25,7 +25,7 @@ SKIPPED = 0
 #
 # When False, will not overwrite existing files and will skip evaluating those
 # files again
-OVERWRITE = False
+OVERWRITE = True
 
 CRISP_MODELS = [
     os.path.join(MODEL_DIR, 'real_seed_crisp_3blstm_128units_rd1_bs64_epoch19.tf'),
@@ -164,17 +164,20 @@ def compare_tg(tg_p, tg_g):
             else:
                 buck_errs += errs
 
-    for p, g in zip(predicted.tiers[-1], gt):
-            
-            e = g.maxTime - p.maxTime
-            errs.append(e)
+    else:
+        for p, g in zip(predicted.tiers[-1], gt):
                 
-            if os.path.basename(tg_g).startswith('M') or os.path.basename(tg_g).startswith('F'):
-                tim_errs.append(e)
-            else:
-                buck_errs.append(e)
+                e = g.maxTime - p.maxTime
+                errs.append(e)
+                    
+                if os.path.basename(tg_g).startswith('M') or os.path.basename(tg_g).startswith('F'):
+                    tim_errs.append(e)
+                else:
+                    buck_errs.append(e)
                 
-    return {'all': errs, 'tim': tim_errs, 'buck': buck_errs}
+    segments = [x.mark for x in predicted.tiers[-1]]
+                
+    return {'all': errs, 'tim': tim_errs, 'buck': buck_errs, 'segments': segments}
     
 def convert_timit_tier(t):
 
@@ -224,11 +227,11 @@ def convert_buckeye_tier(t):
     return new_t
 
 def alt_tg_compare(p, g):
-'''
-Compare TextGrids using iterators to try to get account for
-uneven numbers of labels. Sometimes occurs when including
-silence labels at beginning or end.
-'''
+    '''
+    Compare TextGrids using iterators to try to get account for
+    uneven numbers of labels. Sometimes occurs when including
+    silence labels at beginning or end.
+    '''
 
     p_itr = iter(p)
     g_itr = iter(g)
@@ -290,6 +293,12 @@ if __name__ == '__main__':
         int_buck_errs = []
         noint_buck_errs = []
         
+        file_names = []
+        segments = []
+        previous_segments = []
+        following_segments = []
+        sources = []
+        
         for interp, noint, gold in tqdm(list(zip(int_pred, noint_pred, tg_gold))):
         
             if re.sub(r'(real|full).*interp', '', interp) in FILES_TO_IGNORE:
@@ -313,9 +322,23 @@ if __name__ == '__main__':
         
             int_res = compare_tg(interp, gold)
             
+            if len(int_res['all']) != len(int_res['segments']):
+                print()
+                print([round(x, 3) for x in int_res['all']])
+                print(int_res['segments'])
+                print(interp)
+                print(gold)
+                sys.exit()
+            
             int_errs += int_res['all']
             int_tim_errs += int_res['tim']
             int_buck_errs += int_res['buck']
+            
+            file_names += [interp] * len(int_res['all'])
+            segments += int_res['segments']
+            previous_segments += ['#'] + int_res['segments'][:-1]
+            following_segments += int_res['segments'][1:] + ['#']
+            sources += ['buckeye' if os.path.basename(interp).startswith('s') else 'timit'] * len(int_res['all'])
             
             noint_res = compare_tg(noint, gold)
             
@@ -334,9 +357,9 @@ if __name__ == '__main__':
         print()
         print('Skipped:\t', SKIPPED)
         SKIPPED = 0
-        
+                
         print(len(int_errs), len(noint_errs))
-        all_df = pd.DataFrame({'interp': int_errs, 'nointerp': noint_errs})
+        all_df = pd.DataFrame({'interp': int_errs, 'nointerp': noint_errs, 'filename': file_names, 'segment': segments, 'prev_segment': previous_segments, 'next_segment': following_segments, 'corpus': sources})
         all_df.to_csv(all_df_name, index=False)
         
         tim_df = pd.DataFrame({'interp': int_tim_errs, 'nointerp': noint_tim_errs})
