@@ -55,10 +55,10 @@ def create_distance_matrix(data_dir, out_name):
         labs = np.argmax(labs, 1)
         
         for i, la in enumerate(labs):
+            # Add to both column and row to make symmetric
             scores[la,:] += s[i,:]
             scores[:,la] += s[i,:]
 
-    # Add to both column and row to make symmetric
     scores = scores[to_keep, :]
     scores = scores[:, to_keep]
         
