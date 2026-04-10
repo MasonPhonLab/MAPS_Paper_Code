@@ -86,6 +86,6 @@ There are 5 `R` scripts that need to be run. Two are at the top-level. The first
 
 The next R script is `make_dendrograms.R`, which is in the `py_scripts` folder. It will take the tables that `08-sparse_label_analysis.py` produces and then create dendrograms.
 
-The other two `R` scripts are nested within the `py_scripts` folder. The `py_scripts/boundary_eval_res/boundary_eval.R` script will create the tables associated with the boundary error thresholds and the CDF plots. There are two associated `Julia` scripts as well that will be called by the `R` script to generate the plots used in the paper, but the script will also generate the plots with base R graphics. This script will also read in MFA results as needed.
+The other two `R` scripts are nested within the `py_scripts` folder. The `py_scripts/boundary_eval_res/eval_res.R` script will create the tables associated with the boundary error thresholds and the CDF plots. There are two associated `Julia` scripts as well that will be called by the `R` script to generate the plots used in the paper, but the script will also generate the plots with base R graphics. This script will also read in MFA results as needed.
 
 The second final `R` script is in `py_scripts/mfa_boundary_eval_res/mfa_eval_res.R`. It will generate the table rows for the MFA evaluations and comparisons.
